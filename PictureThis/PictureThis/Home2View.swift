@@ -30,6 +30,8 @@ struct LocationPickerView: View {
                     .cornerRadius(10)
             }
             .padding()
+            .accessibility(label: Text("Confirm selection"))
+
         }
         .background(Color.white)
         .cornerRadius(20)
@@ -63,6 +65,7 @@ struct SearchBar: View {
                 .padding(.horizontal, 8)
                 .textFieldStyle(PlainTextFieldStyle()) // Nasconde il cursore
                 .padding(10)
+                .accessibility(label: Text("Search for plants"))
         }
         .padding(.top)
     }
@@ -83,6 +86,8 @@ struct SquareView: View {
                     Image(systemName: imageName)
                         .foregroundColor(.white)
                 )
+                //.accessibility(label: Text(text))
+
             Text(text)
                 .foregroundColor(.black)
                 .font(.custom("San Francisco", size: 15))
@@ -103,10 +108,6 @@ struct Item : Identifiable{
     var description: String
     var tagText: String?
 }
-
-
-
-
 
 
 
@@ -133,6 +134,7 @@ struct OrizzontaleScrollableView: View {
                     .bold()
                     .padding()
                     .font(.title2)
+                    .accessibility(addTraits: .isHeader)
                 
                 Spacer()
                 
@@ -160,6 +162,9 @@ struct OrizzontaleScrollableView: View {
                         .padding()
                 }
             }
+            .accessibilityElement(children: .ignore)
+            //.accessibility(label: Text("Trending in Italy"))
+            .accessibility(addTraits: .isHeader)
             
             
             ScrollView(.horizontal) {
@@ -174,6 +179,8 @@ struct OrizzontaleScrollableView: View {
                                         .cornerRadius(20)
                                 )
                                 .clipped()
+                                .accessibility(label: Text(item.description))
+
                             
                             Text(item.description)
                                 .padding(.top, 5)
@@ -209,6 +216,8 @@ struct OrizzontaleScrollableView: View {
                 }
             }
         }
+        .accessibilityElement(children: .contain)
+        .accessibilityLabel(Text("Trending items"))
     }
 }
 
@@ -252,6 +261,8 @@ struct OrizzontaleScrollable2View: View {
                     .bold()
                     .padding()
                     .font(.title2)
+                    .accessibility(addTraits: .isHeader)
+                
                 
                 Spacer()
                 
@@ -279,7 +290,8 @@ struct OrizzontaleScrollable2View: View {
                         .padding()
                 }
             }
-            
+            .accessibilityElement(children: .ignore)
+            .accessibility(addTraits: .isHeader)
             
             ScrollView(.horizontal) {
                 
@@ -293,6 +305,8 @@ struct OrizzontaleScrollable2View: View {
                                 .aspectRatio(contentMode: .fill)
                                 .clipped()
                                 .frame(width: 180, height: 125)
+                                .accessibility(label: Text(item2.category))
+                            
                             
                             LinearGradient(colors: [.clear, .black.opacity(0.7)],
                                            startPoint: .top,
@@ -310,6 +324,8 @@ struct OrizzontaleScrollable2View: View {
                 }
             }
         }
+        .accessibilityElement(children: .contain)
+        .accessibilityLabel(Text("Explore items in Italy"))
     }
 }
 
@@ -349,6 +365,8 @@ struct RectangleView: View {
                     .bold()
                     .padding()
                     .font(.title2)
+                    .accessibility(addTraits: .isHeader)
+
                 
                 Spacer()
                 
@@ -376,6 +394,9 @@ struct RectangleView: View {
                         .padding()
                 }
             }
+            .accessibilityElement(children: .ignore)
+            .accessibility(addTraits: .isHeader)
+
             
             
             LazyVStack(spacing: 20) {
@@ -386,6 +407,8 @@ struct RectangleView: View {
                             .aspectRatio(contentMode: .fill)
                             .frame(width: 110, height: 140)
                             .clipShape(RoundedRectangle(cornerRadius: 10))
+                            .accessibility(label: Text(item3.title))
+
                         
                         VStack(alignment: .leading) {
                             Text(item3.title)
@@ -409,6 +432,8 @@ struct RectangleView: View {
                                 .background(Color.gray.opacity(0.3))
                                 .clipShape(Circle())
                         }
+                        .accessibility(label: Text("Read more about \(item3.title)"))
+
                     }
                     .padding()
                     .background(RoundedRectangle(cornerRadius: 20)
@@ -418,6 +443,8 @@ struct RectangleView: View {
             }
             .padding()
         }
+        .accessibilityElement(children: .contain)
+        .accessibilityLabel(Text("Protect Your Garden & Family"))
     }
 }
 
@@ -465,6 +492,8 @@ struct Home2View: View {
                                 .padding(.leading)
                                 .padding(.top)
                                 .padding(.bottom, -17)
+                                .accessibility(label: Text("Select Location"))
+                                .accessibility(hint: Text("Current Location, Italy"))
                                 
                                 Spacer()
                                 
@@ -475,34 +504,49 @@ struct Home2View: View {
                             
                             SearchBar()
                             
+                            
                             LazyHStack(spacing: 10){
-                                    NavigationLink(destination: ContentView()                .toolbar(.hidden, for: .tabBar)) {
-                                        SquareView(imageName: "camera.fill", text: "Identify", colorName: Color(.systemGreen))
-                                    }
+                                NavigationLink(destination: ContentView()                .toolbar(.hidden, for: .tabBar)) {
+                                    SquareView(imageName: "camera.fill", text: "Identify", colorName: Color(.systemGreen))
+                                        //.accessibility(label: Text("Identify plants"))
+
+                                }
                                 
                                 
-                                    
-                                    SquareView(imageName: "cross.case.fill", text: "Diagnose", colorName: Color(.systemOrange))
                                 
-                                    SquareView(imageName: "alarm.fill", text: "Reminders", colorName: Color(.systemPurple))
+                                SquareView(imageName: "cross.case.fill", text: "Diagnose", colorName: Color(.systemOrange))
+                                    .accessibility(label: Text("Diagnose plant issues"))
+
                                 
-                                    SquareView(imageName: "leaf.fill", text: "My Garden", colorName: Color(.systemGreen))
+                                SquareView(imageName: "alarm.fill", text: "Reminders", colorName: Color(.systemPurple))
+                                    .accessibility(label: Text("Plant care reminders"))
+
+                                
+                                SquareView(imageName: "leaf.fill", text: "My Garden", colorName: Color(.systemGreen))
+                                    .accessibility(label: Text("My Garden"))
+
                             }
                             .padding()
-                       }
+                        }
                         .background(Color.white)
-                            
+                        
                         
                         
                         OrizzontaleScrollableView(text: "Trending in Italy")
                             .background(Color.white)
+                            //.accessibility(label: Text("Trending items in Italy"))
+
                         
                         OrizzontaleScrollable2View(text: "Explore in Italy")
                             .background(Color.white)
+                            //.accessibility(label: Text("Explore plant categories in Italy"))
+
                         
                         RectangleView(
                             text: "Protect Your Garden & Family")
                         .background(Color.white)
+                        //.accessibility(label: Text("Gardening tips to protect your garden and family"))
+
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .background(Color(.systemGray6))

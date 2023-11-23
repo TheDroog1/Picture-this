@@ -10,112 +10,6 @@ import AVFoundation
 import Vision
 import CoreML
 
-struct DetailView: View {
-    var capturedImage: UIImage?
-    var plantName: String?
-    var plantDescription: String?
-    
-    var onTakeNewPhoto: (() -> Void)?
-
-    var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 16) {
-                if let capturedImage = capturedImage {
-                    Image(uiImage: capturedImage)
-                        .resizable()
-                        .scaledToFit()
-                        .frame(height: 250)
-                        .cornerRadius(20)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 20)
-                                .stroke(Color.white, lineWidth: 2)
-                        )
-                        .padding()
-                }
-
-                if let plantName = plantName {
-                    Text(plantName)
-                        .font(.title)
-                        .foregroundColor(.primary)
-                        .padding(.top, 10)
-                }
-
-                if let plantDescription = plantDescription {
-                    Text(plantDescription)
-                        .font(.body)
-                        .foregroundColor(.secondary)
-                        .padding(.bottom, 10)
-                }
-
-                // Divider
-                Divider()
-
-                // Additional Plant Information
-                Section(header: Text("Additional Information").font(.headline)) {
-                    Text("Distribution: Mediterranean region")
-                    Text("Classification: Magnoliopsida")
-                    Text("Characteristics: Evergreen shrub with thorny stems.")
-                }
-
-                // Divider
-                Divider()
-
-                // Care Instructions
-                Section(header: Text("Care Instructions").font(.headline)) {
-                    Text("Watering: Regular watering, especially in hot weather.")
-                    Text("Sunlight: Full sun to partial shade.")
-                    Text("Soil: Well-draining soil.")
-                }
-
-                // Spacer for layout spacing
-                Spacer()
-
-                // Button to take a new photo
-                Button(action: {
-                    onTakeNewPhoto?()
-                }) {
-                    HStack {
-                        Image(systemName: "camera.fill")
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                            .frame(width: 20, height: 20)
-                            .foregroundColor(.white)
-                            .padding(8)
-                            .background(Color.blue)
-                            .cornerRadius(15)
-
-                        Text("New Photo")
-                            .foregroundColor(.white)
-                            .font(.body)
-                            .padding(.horizontal, 10)
-                    }
-                }
-                .padding(.top, 10)
-            }
-            .padding()
-            .background(Color(.systemBackground))
-            .cornerRadius(20)
-            .shadow(radius: 5)
-            .navigationBarTitle("Plant Details", displayMode: .inline)
-        }
-    }
-}
-
-
-
-
-struct DetailView_Previews: PreviewProvider {
-    static var previews: some View {
-        DetailView(
-            capturedImage: UIImage(named: "plants"),
-            plantName: "Sample Plant",
-            plantDescription: "This is a sample plant description."
-        )
-    }
-}
-
-
-
 struct ContentView: View {
     
     // State: Questa variabile può essere modificata all'interno della vista stessa. Privata: indica che può essere modificata solo all'interno della vista.
@@ -130,22 +24,50 @@ struct ContentView: View {
     
     //?: vuol dire che è opzionale il valore, può essere anche nil
     
-    
     var body: some View {
         
         VStack{
             
-            if let capturedImage = capturedImage,let plantName = plantName, let plantDescription = plantDescription{
-                
-                DetailView(capturedImage: capturedImage, plantName: plantName, plantDescription: plantDescription,    onTakeNewPhoto: {
-                    isCameraPresented.toggle()
-                    self.recognizedObject = nil
-                    self.confidence = nil
-                    self.capturedImage = nil
-                    self.plantName = nil
-                    self.plantDescription = nil
+            if  let plantName = plantName
+            {
+                switch plantName {
+                case "rose":
+                    if let capturedImage = capturedImage, let plantDescription = plantDescription{
+                        
+                        DetailView(capturedImage: capturedImage, plantName: plantName, plantDescription: plantDescription,    onTakeNewPhoto: {
+                            isCameraPresented.toggle()
+                            self.recognizedObject = nil
+                            self.confidence = nil
+                            self.capturedImage = nil
+                            self.plantName = nil
+                            self.plantDescription = nil
+                        }
+                        )
+                        .accessibility(label: Text("Details for Rose"))
+
+                    }
+                    
+                case "sunflower":
+                    if let capturedImage = capturedImage, let plantDescription = plantDescription{
+                        
+                        Detail1View(capturedImage: capturedImage, plantName: plantName, plantDescription: plantDescription,    onTakeNewPhoto: {
+                            isCameraPresented.toggle()
+                            self.recognizedObject = nil
+                            self.confidence = nil
+                            self.capturedImage = nil
+                            self.plantName = nil
+                            self.plantDescription = nil
+                        }
+                        )
+                        .accessibility(label: Text("Details for Sunflower"))
+
+                    }
+                    
+                default:
+                    EmptyView()
                 }
-                )
+                
+                
                 
             } else{
                 Button(action: {
@@ -160,6 +82,8 @@ struct ContentView: View {
                         .foregroundColor(.white)
                         .clipShape(Circle())
                 }
+                .accessibility(label: Text("Open Camera"))
+
                 .sheet(isPresented: $isCameraPresented) {
                     CameraView(recognizedObject: $recognizedObject, confidence: $confidence, capturedImage: $capturedImage, plantName: $plantName, plantDescription: $plantDescription)
                 }
@@ -247,13 +171,18 @@ struct CameraView: UIViewControllerRepresentable {
             let objectRecognitionRequest = VNCoreMLRequest(model: visionModel) { request, error in
                 if let error = error {
                     self.parent.recognizedObject = "Error: \(error.localizedDescription)"
+                    
                     self.parent.confidence = nil
                     self.parent.capturedImage = nil
                     self.parent.plantName = nil
                     self.parent.plantDescription = nil
                     
+                    self.parent
+                        .accessibility(label: Text("Error: \(error.localizedDescription)"))
+                        .accessibility(value: Text("Unable to recognize object"))
                     return
                 }
+                
                 
                 guard let observations = request.results as? [VNClassificationObservation], !observations.isEmpty else {
                     self.parent.recognizedObject = "No object recognized"
@@ -273,8 +202,8 @@ struct CameraView: UIViewControllerRepresentable {
                 self.parent.confidence = confidence
                 
                 self.parent.capturedImage = image
-                self.parent.plantName = recognizedObject
-                self.parent.plantDescription = "Descrizione della pianta..."
+                self.parent.plantName = "\(recognizedObject)"
+                self.parent.plantDescription = ""
                 
             }
             
